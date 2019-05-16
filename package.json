@@ -5,7 +5,7 @@
   "author": "CodeYourFuture",
   "license": "ISC",
   "scripts": {
-    "precommit": "pretty-quick --staged",
+    "precommit": "pretty-quick --staged --verbose",
     "serve": "live-server"
   },
   "devDependencies": {
