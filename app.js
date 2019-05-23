@@ -36,7 +36,7 @@
 var account = {
   number: 100402153,
   initialBalance: 100,
-  paymentsUrl: '/data/payments.json',
+  paymentsUrl: "/data/payments.json",
   payments: []
 };
 
@@ -48,17 +48,44 @@ var account = {
  *
  * You may edit this code.
  */
-document.querySelector('#loadButton')
-  .addEventListener('click', function () {
-    fetch(account.paymentsUrl)
-      .then(response => response.json())
-      .then(payments => {
-        account.payments = payments;
-        render(account);
-      });
-  });
+document.querySelector("#loadButton").addEventListener("click", function() {
+  fetch(account.paymentsUrl)
+    .then(response => response.json())
+    .then(payments => {
+      account.payments = payments;
+      render(
+        account,
+        calculateBalanceAfterPending(account),
+        calculateTotalIncomeInMay(account)
+      );
+    });
+});
 
-/**
+//task 3
+function calculateBalanceAfterPending(account) {
+  var allPayments = account.payments
+    .map(function(payment) {
+      return payment.amount;
+    })
+    .reduce(function(a, b) {
+      return a + b;
+    });
+  return account.initialBalance + allPayments;
+}
+//task 4
+function calculateTotalIncomeInMay(account) {
+  var allIncomeRecieved = account.payments
+    .filter(function(payment) {
+      return payment.date.includes("2019-05");
+    })
+    .map(payment => payment.amount)
+    .reduce(function(accumulator, payment) {
+      return accumulator + payment;
+    });
+  return allIncomeRecieved;
+}
+
+/**S
  * Write a render function below that updates the DOM with the
  * account details.
  *
@@ -71,12 +98,15 @@ document.querySelector('#loadButton')
  *
  * @param {Object} account The account details
  */
-function render(account) {
-
+function render(account, balanceAfterPending, allIncomeRecieved) {
   // Display the account number
-  document.querySelector('#accountNumber')
-    .innerText = account.number;
-};
+  document.querySelector("#accountNumber").innerText = account.number;
+  document.querySelector("#pendingBalance").innerText =
+    "£" + balanceAfterPending.toFixed(2);
+  document.querySelector("#totalIncome").innerText =
+    "£" + allIncomeRecieved.toFixed(2);
+}
+//display the account details.
 
 /**
  * Write any additional functions that you need to complete
