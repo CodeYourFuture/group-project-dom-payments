@@ -55,6 +55,14 @@ document.querySelector("#loadButton").addEventListener("click", function() {
     .then(response => response.json())
     .then(payments => {
       account.payments = payments;
+balance-total-income
+      render(
+        account,
+        calculateBalanceAfterPending(account),
+        calculateTotalIncomeInMay(account)
+      );
+    });
+});
       console.log(account.payments);
       render(account, calculateCurrentBalance());
     });
@@ -69,8 +77,33 @@ function calculateCurrentBalance() {
   }, 0);
   return totalAmounts + account.initialBalance;
 }
+master
 
-/**
+//task 3
+function calculateBalanceAfterPending(account) {
+  var allPayments = account.payments
+    .map(function(payment) {
+      return payment.amount;
+    })
+    .reduce(function(a, b) {
+      return a + b;
+    });
+  return account.initialBalance + allPayments;
+}
+//task 4
+function calculateTotalIncomeInMay(account) {
+  var allIncomeRecieved = account.payments
+    .filter(function(payment) {
+      return payment.date.includes("2019-05");
+    })
+    .map(payment => payment.amount)
+    .reduce(function(accumulator, payment) {
+      return accumulator + payment;
+    });
+  return allIncomeRecieved;
+}
+
+/**S
  * Write a render function below that updates the DOM with the
  * account details.
  *
@@ -83,6 +116,17 @@ function calculateCurrentBalance() {
  *
  * @param {Object} account The account details
  */
+ balance-total-income
+function render(account, balanceAfterPending, allIncomeRecieved) {
+  // Display the account number
+  document.querySelector("#accountNumber").innerText = account.number;
+  document.querySelector("#pendingBalance").innerText =
+    "£" + balanceAfterPending.toFixed(2);
+  document.querySelector("#totalIncome").innerText =
+    "£" + allIncomeRecieved.toFixed(2);
+}
+//display the account details.
+=======
 function render(account, currentBalance) {
   // Display the account number
   document.querySelector("#accountNumber").innerText = account.number;
@@ -116,6 +160,7 @@ function renderNewColumn(element, row) {
   row.appendChild(newCol);
   newCol.innerText = element;
 }
+ master
 
 /**
  * Write any additional functions that you need to complete
