@@ -28,6 +28,7 @@
  */
 
 /**
+ *
  * This is the account details that you will use with this
  * exercise.
  *
@@ -36,9 +37,10 @@
 var account = {
   number: 100402153,
   initialBalance: 100,
-  paymentsUrl: '/data/payments.json',
+  paymentsUrl: "/data/payments.json",
   payments: []
 };
+var balanceAmount = document.querySelector("#balanceAmount");
 
 /**
  * The code below has been written for you. When the "Load"
@@ -48,15 +50,25 @@ var account = {
  *
  * You may edit this code.
  */
-document.querySelector('#loadButton')
-  .addEventListener('click', function () {
-    fetch(account.paymentsUrl)
-      .then(response => response.json())
-      .then(payments => {
-        account.payments = payments;
-        render(account);
-      });
+document.querySelector("#loadButton").addEventListener("click", function() {
+  fetch(account.paymentsUrl)
+    .then(response => response.json())
+    .then(payments => {
+      account.payments = payments;
+      console.log(account.payments);
+      render(account, calculateCurrentBalance());
+    });
+});
+
+function calculateCurrentBalance() {
+  var completedPayments = account.payments.filter(function(payment) {
+    return payment.completed === true;
   });
+  var totalAmounts = completedPayments.reduce(function(accumulator, payment) {
+    return accumulator + payment.amount;
+  }, 0);
+  return totalAmounts + account.initialBalance;
+}
 
 /**
  * Write a render function below that updates the DOM with the
@@ -71,12 +83,36 @@ document.querySelector('#loadButton')
  *
  * @param {Object} account The account details
  */
-function render(account) {
-
+function render(account, currentBalance) {
   // Display the account number
-  document.querySelector('#accountNumber')
-    .innerText = account.number;
-};
+  document.querySelector("#accountNumber").innerText = account.number;
+  document.querySelector("#balanceAmount").innerText = "£" + currentBalance;
+  account.payments.forEach(element => {
+    newRowCol(
+      element.date,
+      element.description,
+      element.amount,
+      element.completed
+    );
+  });
+}
+
+function newRowCol(date, description, amount, status) {
+  var paymentsList = document.querySelector("#paymentsList");
+  var newRow = document.createElement("tr");
+  paymentsList.appendChild(newRow);
+
+  renderNewColumn(date, newRow);
+  renderNewColumn(status ? "Completed" : "Pending", newRow);
+  renderNewColumn(description, newRow);
+  renderNewColumn("£" + amount, newRow);
+}
+
+function renderNewColumn(element, row) {
+  var newCol = document.createElement("td");
+  row.appendChild(newCol);
+  newCol.innerText = element;
+}
 
 /**
  * Write any additional functions that you need to complete
