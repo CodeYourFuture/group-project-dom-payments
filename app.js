@@ -101,6 +101,9 @@ function newRowCol(date, description, amount, status) {
   var paymentsList = document.querySelector("#paymentsList");
   var newRow = document.createElement("tr");
   paymentsList.appendChild(newRow);
+  if (!status) {
+    newRow.setAttribute("class", "pending");
+  }
 
   renderNewColumn(date, newRow);
   renderNewColumn(status ? "Completed" : "Pending", newRow);
