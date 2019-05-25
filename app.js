@@ -33,6 +33,36 @@
  *
  * Do not edit this code.
  */
+document.querySelector("#loadButton").addEventListener("click", () => {
+  fetch(account.paymentsUrl)
+    .then(response => response.json())
+    .then(payments => {
+      var currentBalance = calculateBalance(payments, account.initialBalance);
+      var totalBalance = calculateTotalBalance(
+        payments,
+        account.initialBalance
+      );
+      render(account, currentBalance, totalBalance);
+    });
+});
+function render(account, currentBalance, totalBalance) {
+  document.querySelector("#accountNumber").innerHTML = account.number;
+  document.getElementById("balanceAmount").innerText = currentBalance;
+  document.getElementById("pendingBalance").innerText = totalBalance;
+}
+function calculateBalance(listPayments, balance) {
+  return listPayments
+    .filter(payment => payment.completed)
+    .map(payment => payment.amount)
+    .reduce((total, amount) => total + amount, balance);
+}
+
+function calculateTotalBalance(listPayments, balance) {
+  return listPayments
+    .map(payment => payment.amount)
+    .reduce((total, amount) => total + amount, balance);
+}
+
 var account = {
   number: 100402153,
   initialBalance: 100,
@@ -48,6 +78,7 @@ var account = {
  *
  * You may edit this code.
  */
+
 document.querySelector("#loadButton").addEventListener("click", function() {
   fetch(account.paymentsUrl)
     .then(response => response.json())
@@ -56,6 +87,7 @@ document.querySelector("#loadButton").addEventListener("click", function() {
       render(account);
     });
 });
+
 
 /**
  * Write a render function below that updates the DOM with the
@@ -70,6 +102,7 @@ document.querySelector("#loadButton").addEventListener("click", function() {
  *
  * @param {Object} account The account details
  */
+YoussefCompleteProjectSoln
 function render(account) {
   // Display the account number
   document.querySelector("#accountNumber").innerText = account.number;
@@ -96,6 +129,7 @@ function render(account) {
 
   cancelButton.addEventListener("click", deleteRowWhichContainCancel);
 }
+
 
 /**
  * Write any additional functions that you need to complete
