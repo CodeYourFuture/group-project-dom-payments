@@ -28,6 +28,7 @@
  */
 
 /**
+ *
  * This is the account details that you will use with this
  * exercise.
  *
@@ -36,9 +37,10 @@
 var account = {
   number: 100402153,
   initialBalance: 100,
-  paymentsUrl: '/data/payments.json',
+  paymentsUrl: "/data/payments.json",
   payments: []
 };
+var balanceAmount = document.querySelector("#balanceAmount");
 
 /**
  * The code below has been written for you. When the "Load"
@@ -48,17 +50,64 @@ var account = {
  *
  * You may edit this code.
  */
-document.querySelector('#loadButton')
-  .addEventListener('click', function () {
-    fetch(account.paymentsUrl)
-      .then(response => response.json())
-      .then(payments => {
-        account.payments = payments;
-        render(account);
-      });
-  });
+document.querySelector("#loadButton").addEventListener("click", function() {
+  fetch(account.paymentsUrl)
+    .then(response => response.json())
+    .then(payments => {
+      account.payments = payments;
+      var valuableAmount = mostValuablePayment(payments);
+      // balance-total-income
 
-/**
+      render(
+        account,
+        calculateBalanceAfterPending(account),
+        calculateTotalIncomeInMay(account),
+        valuableAmount
+      );
+      document.getElementById("mostValuablePayment").innerText = valuableAmount;
+    });
+});
+console.log(account.payments);
+render(account, calculateCurrentBalance());
+//     });
+// });
+
+function calculateCurrentBalance() {
+  var completedPayments = account.payments.filter(function(payment) {
+    return payment.completed === true;
+  });
+  var totalAmounts = completedPayments.reduce(function(accumulator, payment) {
+    return accumulator + payment.amount;
+  }, 0);
+  return totalAmounts + account.initialBalance;
+}
+
+//task 3
+function calculateBalanceAfterPending(account) {
+  var allPayments = account.payments
+    .map(function(payment) {
+      return payment.amount;
+    })
+    .reduce(function(a, b) {
+      return a + b;
+    });
+  return account.initialBalance + allPayments;
+}
+
+//task 4
+function calculateTotalIncomeInMay(account) {
+  var allIncomeRecieved = account.payments
+    .filter(function(payment) {
+      return payment.date.includes("2019-05");
+    })
+    .map(payment => payment.amount)
+    .reduce(function(accumulator, payment) {
+      return accumulator + payment;
+    });
+  return allIncomeRecieved;
+}
+
+/**S
  * Write a render function below that updates the DOM with the
  * account details.
  *
@@ -71,12 +120,83 @@ document.querySelector('#loadButton')
  *
  * @param {Object} account The account details
  */
-function render(account) {
-
+//  balance-total-income
+function render(account, balanceAfterPending, allIncomeRecieved) {
   // Display the account number
-  document.querySelector('#accountNumber')
-    .innerText = account.number;
-};
+  document.querySelector("#accountNumber").innerText = account.number;
+  document.querySelector("#pendingBalance").innerText =
+    "£" + balanceAfterPending.toFixed(2);
+  document.querySelector("#totalIncome").innerText =
+    "£" + allIncomeRecieved.toFixed(2);
+}
+
+//display the account details.
+
+function render(account, currentBalance) {
+  // Display the account number
+  document.querySelector("#accountNumber").innerText = account.number;
+  document.querySelector("#balanceAmount").innerText = "£" + currentBalance;
+  account.payments.forEach(element => {
+    newRowCol(
+      element.date,
+      element.description,
+      element.amount,
+      element.completed
+    );
+  });
+}
+
+function newRowCol(date, description, amount, status) {
+  var paymentsList = document.querySelector("#paymentsList");
+  var newRow = document.createElement("tr");
+  var newColumn = document.createElement("td");
+  paymentsList.appendChild(newRow);
+  if (!status) {
+    newRow.setAttribute("class", "pending");
+    renderNewColumn(date, newRow);
+    renderNewColumn(status ? "Completed" : "Pending", newRow);
+    renderNewColumn(description, newRow);
+    renderNewColumn("£" + amount, newRow);
+
+    //  Task 6
+    var cancelButton = document.createElement("button");
+    cancelButton.setAttribute("type", "button");
+    cancelButton.setAttribute("class", "remove");
+    cancelButton.innerText = "cancel";
+
+    newColumn.appendChild(cancelButton);
+    newRow.appendChild(newColumn);
+    newRow.addEventListener("click", function(event) {
+      if (event.target.className == "remove") {
+        paymentsList.removeChild(newRow);
+      }
+    });
+  } else {
+    renderNewColumn(date, newRow);
+    renderNewColumn(status ? "Completed" : "Pending", newRow);
+    renderNewColumn(description, newRow);
+    renderNewColumn("£" + amount, newRow);
+  }
+}
+
+function renderNewColumn(element, row) {
+  var newCol = document.createElement("td");
+  row.appendChild(newCol);
+  newCol.innerText = element;
+}
+// Task 5
+function mostValuablePayment(payments) {
+  var listOfPayments = payments
+    .filter(function(payment) {
+      var paymentDate = "2019-05";
+      var isComplete = payment.completed === true;
+      return payment.date.includes(paymentDate) && isComplete;
+    })
+    .map(function(payment) {
+      return payment.amount;
+    });
+  return Math.max.apply(null, listOfPayments);
+}
 
 /**
  * Write any additional functions that you need to complete
