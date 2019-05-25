@@ -55,18 +55,22 @@ document.querySelector("#loadButton").addEventListener("click", function() {
     .then(response => response.json())
     .then(payments => {
       account.payments = payments;
-balance-total-income
+      var valuableAmount = mostValuablePayment(payments);
+      // balance-total-income
+
       render(
         account,
         calculateBalanceAfterPending(account),
-        calculateTotalIncomeInMay(account)
+        calculateTotalIncomeInMay(account),
+        valuableAmount
       );
+      document.getElementById("mostValuablePayment").innerText = valuableAmount;
     });
 });
-      console.log(account.payments);
-      render(account, calculateCurrentBalance());
-    });
-});
+console.log(account.payments);
+render(account, calculateCurrentBalance());
+//     });
+// });
 
 function calculateCurrentBalance() {
   var completedPayments = account.payments.filter(function(payment) {
@@ -77,7 +81,6 @@ function calculateCurrentBalance() {
   }, 0);
   return totalAmounts + account.initialBalance;
 }
-master
 
 //task 3
 function calculateBalanceAfterPending(account) {
@@ -90,6 +93,7 @@ function calculateBalanceAfterPending(account) {
     });
   return account.initialBalance + allPayments;
 }
+
 //task 4
 function calculateTotalIncomeInMay(account) {
   var allIncomeRecieved = account.payments
@@ -116,7 +120,7 @@ function calculateTotalIncomeInMay(account) {
  *
  * @param {Object} account The account details
  */
- balance-total-income
+//  balance-total-income
 function render(account, balanceAfterPending, allIncomeRecieved) {
   // Display the account number
   document.querySelector("#accountNumber").innerText = account.number;
@@ -125,8 +129,9 @@ function render(account, balanceAfterPending, allIncomeRecieved) {
   document.querySelector("#totalIncome").innerText =
     "£" + allIncomeRecieved.toFixed(2);
 }
+
 //display the account details.
-=======
+
 function render(account, currentBalance) {
   // Display the account number
   document.querySelector("#accountNumber").innerText = account.number;
@@ -144,15 +149,34 @@ function render(account, currentBalance) {
 function newRowCol(date, description, amount, status) {
   var paymentsList = document.querySelector("#paymentsList");
   var newRow = document.createElement("tr");
+  var newColumn = document.createElement("td");
   paymentsList.appendChild(newRow);
   if (!status) {
     newRow.setAttribute("class", "pending");
-  }
+    renderNewColumn(date, newRow);
+    renderNewColumn(status ? "Completed" : "Pending", newRow);
+    renderNewColumn(description, newRow);
+    renderNewColumn("£" + amount, newRow);
 
-  renderNewColumn(date, newRow);
-  renderNewColumn(status ? "Completed" : "Pending", newRow);
-  renderNewColumn(description, newRow);
-  renderNewColumn("£" + amount, newRow);
+    //  Task 6
+    var cancelButton = document.createElement("button");
+    cancelButton.setAttribute("type", "button");
+    cancelButton.setAttribute("class", "remove");
+    cancelButton.innerText = "cancel";
+
+    newColumn.appendChild(cancelButton);
+    newRow.appendChild(newColumn);
+    newRow.addEventListener("click", function(event) {
+      if (event.target.className == "remove") {
+        paymentsList.removeChild(newRow);
+      }
+    });
+  } else {
+    renderNewColumn(date, newRow);
+    renderNewColumn(status ? "Completed" : "Pending", newRow);
+    renderNewColumn(description, newRow);
+    renderNewColumn("£" + amount, newRow);
+  }
 }
 
 function renderNewColumn(element, row) {
@@ -160,7 +184,19 @@ function renderNewColumn(element, row) {
   row.appendChild(newCol);
   newCol.innerText = element;
 }
- master
+// Task 5
+function mostValuablePayment(payments) {
+  var listOfPayments = payments
+    .filter(function(payment) {
+      var paymentDate = "2019-05";
+      var isComplete = payment.completed === true;
+      return payment.date.includes(paymentDate) && isComplete;
+    })
+    .map(function(payment) {
+      return payment.amount;
+    });
+  return Math.max.apply(null, listOfPayments);
+}
 
 /**
  * Write any additional functions that you need to complete
