@@ -74,17 +74,20 @@ function render(account) {
   // Display the account number
   document.querySelector("#accountNumber").innerText = account.number;
 
-  const completedPayments = getCompletedPayments(account.payments);
-
-  document.querySelector("#balanceAmount").innerText = calculateCurrentBalance(
+  document.querySelector("#balanceAmount").innerText = calculateBalance(
     account,
-    completedPayments
+    getCompletedPayments(account.payments) // Filter completed payments only
   );
 
   const list = document.querySelector("#paymentsList");
   renderPaymentsTable(account.payments).forEach(el => {
     list.append(el);
   });
+
+  document.querySelector("#pendingBalance").innerText = calculateBalance(
+    account,
+    account.payments // All payments
+  );
 }
 
 /**
@@ -102,12 +105,12 @@ function getCompletedPayments(payments) {
   });
 }
 
-function calculateCurrentBalance(account, completedPayments) {
-  const completedAmount = completedPayments.reduce((acc, payment) => {
+function calculateBalance(account, payments) {
+  const paymentAmounts = payments.reduce((acc, payment) => {
     return acc + payment.amount;
   }, 0);
 
-  return `£${account.initialBalance + completedAmount}`;
+  return `£${account.initialBalance + paymentAmounts}`;
 }
 
 function renderPaymentsTable(payments) {
