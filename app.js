@@ -92,6 +92,12 @@ function render(account) {
   document.querySelector("#totalIncome").innerText = `£${sumPayments(
     getPaymentsInMonth(2019, 5, account.payments) // Payments in May
   )}`;
+
+  document.querySelector(
+    "#mostValuablePayment"
+  ).innerText = `£${findMostValuablePayment(
+    getPaymentsInMonth(2019, 5, account.payments)
+  )}`;
 }
 
 /**
@@ -121,6 +127,16 @@ function sumPayments(payments) {
   return payments.reduce((acc, payment) => {
     return acc + payment.amount;
   }, 0);
+}
+
+function findMostValuablePayment(payments) {
+  let max = 0;
+  payments.forEach(payment => {
+    if (payment.amount > max) {
+      max = payment.amount;
+    }
+  });
+  return max;
 }
 
 function calculateBalance(account, payments) {
