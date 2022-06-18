@@ -91,13 +91,13 @@ function render(account) {
   );
 
   document.querySelector("#totalIncome").innerText = `£${sumPayments(
-    getPaymentsInMonth(2019, 5, account.payments) // Payments in May
-  )}`;
+    getPaymentsInMonth(2019, 5, account.payments) // Payments in May 2019
+  ).toFixed(2)}`;
 
   document.querySelector(
     "#mostValuablePayment"
   ).innerText = `£${findMostValuablePayment(
-    getPaymentsInMonth(2019, 5, account.payments)
+    getPaymentsInMonth(2019, 5, account.payments) // Payments in May 2019
   )}`;
 }
 
