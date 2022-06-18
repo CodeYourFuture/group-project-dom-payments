@@ -36,7 +36,7 @@
 var account = {
   number: 100402153,
   initialBalance: 100,
-  paymentsUrl: '/data/payments.json',
+  paymentsUrl: "/data/payments.json",
   payments: []
 };
 
@@ -48,15 +48,14 @@ var account = {
  *
  * You may edit this code.
  */
-document.querySelector('#loadButton')
-  .addEventListener('click', function () {
-    fetch(account.paymentsUrl)
-      .then(response => response.json())
-      .then(payments => {
-        account.payments = payments;
-        render(account);
-      });
-  });
+document.querySelector("#loadButton").addEventListener("click", function() {
+  fetch(account.paymentsUrl)
+    .then(response => response.json())
+    .then(payments => {
+      account.payments = payments;
+      render(account);
+    });
+});
 
 /**
  * Write a render function below that updates the DOM with the
@@ -72,11 +71,16 @@ document.querySelector('#loadButton')
  * @param {Object} account The account details
  */
 function render(account) {
-
   // Display the account number
-  document.querySelector('#accountNumber')
-    .innerText = account.number;
-};
+  document.querySelector("#accountNumber").innerText = account.number;
+
+  const completedPayments = getCompletedPayments(account.payments);
+
+  document.querySelector("#balanceAmount").innerText = calculateCurrentBalance(
+    account,
+    completedPayments
+  );
+}
 
 /**
  * Write any additional functions that you need to complete
@@ -86,3 +90,17 @@ function render(account) {
  * calculate balances, find completed or pending payments,
  * add up payments, and more.
  */
+
+function getCompletedPayments(payments) {
+  return payments.filter(payment => {
+    return payment.completed === true;
+  });
+}
+
+function calculateCurrentBalance(account, completedPayments) {
+  const completedAmount = completedPayments.reduce((acc, payment) => {
+    return acc + payment.amount;
+  }, 0);
+
+  return `£${account.initialBalance + completedAmount}`;
+}
