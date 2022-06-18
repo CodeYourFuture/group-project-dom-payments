@@ -80,6 +80,7 @@ function render(account) {
   );
 
   const list = document.querySelector("#paymentsList");
+  list.replaceChildren(); // Empty - if rendering again, prevents appending another copy of data
   renderPaymentsTable(account.payments).forEach(el => {
     list.append(el);
   });
@@ -145,22 +146,26 @@ function calculateBalance(account, payments) {
 
 function renderPaymentsTable(payments) {
   return payments.map(payment => {
-    const dateData = document.createElement("td");
-    dateData.innerText = payment.date;
+    const dateEl = document.createElement("td");
+    dateEl.innerText = payment.date;
 
-    const statusData = document.createElement("td");
-    statusData.innerText = payment.completed ? "Completed" : "Pending";
+    const statusEl = document.createElement("td");
+    statusEl.innerText = payment.completed ? "Completed" : "Pending";
 
-    const descriptionData = document.createElement("td");
-    descriptionData.innerText = payment.description;
+    const descriptionEl = document.createElement("td");
+    descriptionEl.innerText = payment.description;
 
-    const amountData = document.createElement("td");
-    amountData.innerText = payment.amount;
+    const amountEl = document.createElement("td");
+    amountEl.innerText = payment.amount;
 
-    const row = document.createElement("tr");
+    const rowEl = document.createElement("tr");
 
-    row.append(dateData, statusData, descriptionData, amountData);
+    rowEl.append(dateEl, statusEl, descriptionEl, amountEl);
 
-    return row;
+    if (!payment.completed) {
+      rowEl.classList.add("pending");
+    }
+
+    return rowEl;
   });
 }
