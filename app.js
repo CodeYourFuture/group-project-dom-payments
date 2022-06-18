@@ -164,8 +164,30 @@ function renderPaymentsTable(payments) {
 
     if (!payment.completed) {
       rowEl.classList.add("pending");
+
+      const buttonEl = document.createElement("button");
+      buttonEl.innerText = "Cancel";
+      buttonEl.onclick = () => cancelPendingPayment(payment);
+      const cancelEl = document.createElement("td");
+      cancelEl.append(buttonEl);
+
+      rowEl.append(cancelEl);
     }
 
     return rowEl;
   });
+}
+
+function cancelPendingPayment(cancelledPayment) {
+  const filteredPayments = account.payments.filter(payment => {
+    return !(
+      payment.date === cancelledPayment.date &&
+      payment.description === cancelledPayment.description &&
+      payment.amount === cancelledPayment.amount
+    );
+  });
+
+  account.payments = filteredPayments;
+
+  render(account);
 }
