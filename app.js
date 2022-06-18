@@ -80,6 +80,11 @@ function render(account) {
     account,
     completedPayments
   );
+
+  const list = document.querySelector("#paymentsList");
+  renderPaymentsTable(account.payments).forEach(el => {
+    list.append(el);
+  });
 }
 
 /**
@@ -103,4 +108,26 @@ function calculateCurrentBalance(account, completedPayments) {
   }, 0);
 
   return `£${account.initialBalance + completedAmount}`;
+}
+
+function renderPaymentsTable(payments) {
+  return payments.map(payment => {
+    const dateData = document.createElement("td");
+    dateData.innerText = payment.date;
+
+    const statusData = document.createElement("td");
+    statusData.innerText = payment.completed ? "Completed" : "Pending";
+
+    const descriptionData = document.createElement("td");
+    descriptionData.innerText = payment.description;
+
+    const amountData = document.createElement("td");
+    amountData.innerText = payment.amount;
+
+    const row = document.createElement("tr");
+
+    row.append(dateData, statusData, descriptionData, amountData);
+
+    return row;
+  });
 }
