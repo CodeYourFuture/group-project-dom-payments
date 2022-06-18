@@ -88,6 +88,10 @@ function render(account) {
     account,
     account.payments // All payments
   );
+
+  document.querySelector("#totalIncome").innerText = `£${sumPayments(
+    getPaymentsInMonth(2019, 5, account.payments) // Payments in May
+  )}`;
 }
 
 /**
@@ -105,12 +109,22 @@ function getCompletedPayments(payments) {
   });
 }
 
-function calculateBalance(account, payments) {
-  const paymentAmounts = payments.reduce((acc, payment) => {
+function getPaymentsInMonth(year, month, payments) {
+  return payments.filter(payment => {
+    const date = new Date(payment.date);
+
+    return year === date.getUTCFullYear() && month === date.getMonth() + 1;
+  });
+}
+
+function sumPayments(payments) {
+  return payments.reduce((acc, payment) => {
     return acc + payment.amount;
   }, 0);
+}
 
-  return `£${account.initialBalance + paymentAmounts}`;
+function calculateBalance(account, payments) {
+  return `£${account.initialBalance + sumPayments(payments)}`;
 }
 
 function renderPaymentsTable(payments) {
