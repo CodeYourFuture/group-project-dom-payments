@@ -1,0 +1,25 @@
+- The code to fetch the payments data has already been written
+- for you below. To complete this group project, your group
+- will need to write code to make this app do the following:
+-
+- 1.  Show the current balance based on the initial balance and
+- any completed payments. Each completed payment will add to
+- the balance.
+- 2.  Add the payments to the table. Each payment should show
+- the date of the payment, its status (whether is pending or
+- complete), the description, and the amount.
+-
+- Pending payments should appear with a pink background.
+- This can be applied by adding the `pending` class to the
+- table row (`<tr>`) for each pending payment.
+- 3.  Show what the balance will be after pending payments are
+- completed.
+- 4.  Show the total income of all payments that were received
+- this month (May, 2019), including pending payments.
+- 5.  Show the amount of the most valuable payment that was
+- received this month (May 2019).
+- 6.  For each PENDING payment, add a button that says "cancel"
+- to the end of that payment's row. When the button is
+- clicked, the payment should be removed from the account
+- and the render function should be called again to update
+- the page.
