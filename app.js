@@ -5,6 +5,7 @@ const balance = document.getElementById("balanceAmount");
 const paymentsList = document.getElementById("paymentsList");
 const totalIncome = document.querySelector("#totalIncome");
 const highestPayment = document.querySelector("#mostValuablePayment");
+const pendingBalance = document.getElementById("pendingBalance");
 
 // Assign global variables
 const account = {
@@ -14,51 +15,83 @@ const account = {
   payments: [],
 };
 
+// Render function to update UI
 function render(account) {
   // Display the account number
-  const balanceConversion = account.initialBalance.toFixed(2);
-  accountNumber.innerText = account.number;
-  balance.textContent = `£${balanceConversion}`;
+  accountNumber.textContent = account.number;
+
+  // Create a table row for each payment
   const payments = account.payments.reduce(
-    (acc, { date, description, amount, completed }) => {
+    (acc, { date, description, amount, completed }, index) => {
       let status = "";
       let statusColor = "";
+      let btn = "";
+
+      // Set status and color based on whether the payment is completed or not
       if (completed) {
         status = "Completed";
         statusColor = "";
       } else {
         status = "Pending";
         statusColor = "pending";
+        btn = "<button>Cancel</button>";
       }
+
+      // Create a row for the payment
       const payment = `
-      <tr class="${statusColor}">
+      <tr class="${statusColor}" id="${index}">
         <td>${date}</td>
         <td >${status}</td>
         <td>${description}</td>
         <td>${amount}</td>
-        <td><button>Cancel</button></td>
+        <td>${btn}</td>
       </tr>`;
+
+      // Add the row to the accumulator
       return acc + payment;
     },
     ""
   );
+  const mostValuablePayment = account.payments.reduce(
+    (acc, { date, amount }) => {
+      let month = Number(date.slice(6, 7));
+      return month === 5 && amount > acc ? amount : acc;
+    },
+    0
+  );
+  const currentMonthIncome = account.payments.reduce(
+    (acc, { date, amount }) => {
+      let month = Number(date.slice(6, 7));
+      return month === 5 ? acc + amount : acc + 0;
+    },
+    0
+  );
+  const totalAmount = account.payments.reduce(
+    (acc, { amount }) => acc + amount,
+    0
+  );
+  const incomeBeforePending = account.payments.reduce(
+    (acc, { amount, completed }) => (completed ? acc + amount : acc),
+    0
+  );
 
-  let mostValuablePayment = 0;
-  const totalAmount = account.payments.reduce((acc, { date, amount }) => {
-    let month = date.slice(6, 7);
-    if (month == 5) {
-      if (mostValuablePayment < amount) {
-        mostValuablePayment = amount;
-      }
-      return acc + amount;
-    }
-    return acc;
-  }, 0);
+  // Update the UI with the calculated values
+  balance.textContent = `£${incomeBeforePending + account.initialBalance}`;
+  pendingBalance.textContent = `£${totalAmount + account.initialBalance}`;
   highestPayment.textContent = `£${mostValuablePayment}`;
   paymentsList.innerHTML = payments;
-  totalIncome.textContent = `£${totalAmount}`;
-  console.log(account.payments);
+  totalIncome.textContent = `£${currentMonthIncome.toFixed(2)}`;
 }
+
+// Function to remove a payment from the array and update the UI
+const removePayment = (paymentId) => {
+  account.payments.forEach((_, index) => {
+    if (index == paymentId) {
+      account.payments.splice(index, 1);
+    }
+  });
+  render(account);
+};
 
 // List of event listeners
 loadBtn.addEventListener("click", async function () {
@@ -69,6 +102,13 @@ loadBtn.addEventListener("click", async function () {
     render(account);
   } catch (error) {
     console.log(error);
+  }
+});
+
+paymentsList.addEventListener("click", (event) => {
+  if (event.target.tagName === "BUTTON") {
+    event.target.parentNode.parentNode.remove();
+    removePayment(event.target.parentNode.parentNode.id);
   }
 });
 
