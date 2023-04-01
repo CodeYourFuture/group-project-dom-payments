@@ -30,13 +30,12 @@ function render(account) {
       // Set status and color based on whether the payment is completed or not
       if (completed) {
         status = "Completed";
-        statusColor = "";
       } else {
         status = "Pending";
         statusColor = "pending";
         btn = "<button>Cancel</button>";
       }
-
+      console.log(statusColor);
       // Create a row for the payment
       const payment = `
       <tr class="${statusColor}" id="${index}">
@@ -52,13 +51,32 @@ function render(account) {
     },
     ""
   );
-  const mostValuablePayment = account.payments.reduce(
-    (acc, { date, amount }) => {
-      let month = Number(date.slice(6, 7));
-      return month === 5 && amount > acc ? amount : acc;
-    },
+  calculateIncomeBeforePending();
+  calculateTotalAmount();
+  calculateCurrentMonthIncome();
+  findMostValuablePayment();
+
+  // Update the UI with the calculated values
+  paymentsList.innerHTML = payments;
+}
+
+const calculateIncomeBeforePending = () => {
+  const incomeBeforePending = account.payments.reduce(
+    (acc, { amount, completed }) => (completed ? acc + amount : acc),
     0
   );
+  balance.textContent = `£${incomeBeforePending + account.initialBalance}`;
+};
+
+const calculateTotalAmount = () => {
+  const totalAmount = account.payments.reduce(
+    (acc, { amount }) => acc + amount,
+    0
+  );
+  pendingBalance.textContent = `£${totalAmount + account.initialBalance}`;
+};
+
+const calculateCurrentMonthIncome = () => {
   const currentMonthIncome = account.payments.reduce(
     (acc, { date, amount }) => {
       let month = Number(date.slice(6, 7));
@@ -66,22 +84,19 @@ function render(account) {
     },
     0
   );
-  const totalAmount = account.payments.reduce(
-    (acc, { amount }) => acc + amount,
-    0
-  );
-  const incomeBeforePending = account.payments.reduce(
-    (acc, { amount, completed }) => (completed ? acc + amount : acc),
-    0
-  );
-
-  // Update the UI with the calculated values
-  balance.textContent = `£${incomeBeforePending + account.initialBalance}`;
-  pendingBalance.textContent = `£${totalAmount + account.initialBalance}`;
-  highestPayment.textContent = `£${mostValuablePayment}`;
-  paymentsList.innerHTML = payments;
   totalIncome.textContent = `£${currentMonthIncome.toFixed(2)}`;
-}
+};
+
+const findMostValuablePayment = () => {
+  const mostValuablePayment = account.payments.reduce(
+    (acc, { date, amount }) => {
+      let month = Number(date.slice(6, 7));
+      return month === 5 && amount > acc ? amount : acc;
+    },
+    0
+  );
+  highestPayment.textContent = `£${mostValuablePayment}`;
+};
 
 // Function to remove a payment from the array and update the UI
 const removePayment = (paymentId) => {
