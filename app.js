@@ -1,37 +1,13 @@
-/**
- * The code to fetch the payments data has already been written
- * for you below. To complete this group project, your group
- * will need to write code to make this app do the following:
- *
- * 1. Show the current balance based on the initial balance and
- *    any completed payments. Each completed payment will add to
- *    the balance.
- * 2. Add the payments to the table. Each payment should show
- *    the date of the payment, its status (whether is pending or
- *    complete), the description, and the amount.
- *
- *    Pending payments should appear with a pink background.
- *    This can be applied by adding the `pending` class to the
- *    table row (`<tr>`) for each pending payment.
- * 3. Show what the balance will be after pending payments are
- *    completed.
- * 4. Show the total income of all payments that were received
- *    this month (May, 2019), including pending payments.
- * 5. Show the amount of the most valuable payment that was
- *    received this month (May 2019).
- * 6. For each PENDING payment, add a button that says "cancel"
- *    to the end of that payment's row. When the button is
- *    clicked, the payment should be removed from the account
- *    and the render function should be called again to update
- *    the page.
- */
+// Get DOM elements
+const loadBtn = document.querySelector("#loadButton");
+const accountNumber = document.querySelector("#accountNumber");
+const balance = document.getElementById("balanceAmount");
+const paymentsList = document.getElementById("paymentsList");
+const totalIncome = document.querySelector("#totalIncome");
+const highestPayment = document.querySelector("#mostValuablePayment");
+const pendingBalance = document.getElementById("pendingBalance");
 
-/**
- * This is the account details that you will use with this
- * exercise.
- *
- * Do not edit this code.
- */
+// Assign global variables
 const account = {
   number: 100402153,
   initialBalance: 100,
@@ -39,21 +15,116 @@ const account = {
   payments: [],
 };
 
-/**
- * The code below has been written for you. When the "Load"
- * button is clicked, it will get the payments details, assign
- * them to the account variable, and call the render function
- * to update details in the DOM.
- *
- * You may edit this code.
- */
-document.querySelector("#loadButton").addEventListener("click", function () {
-  fetch(account.paymentsUrl)
-    .then((response) => response.json())
-    .then((payments) => {
-      account.payments = payments;
-      render(account);
-    });
+// Render function to update UI
+function render(account) {
+  // Display the account number
+  accountNumber.textContent = account.number;
+
+  // Create a table row for each payment
+  const payments = account.payments.reduce(
+    (acc, { date, description, amount, completed }, index) => {
+      let status = "";
+      let statusColor = "";
+      let btn = "";
+
+      // Set status and color based on whether the payment is completed or not
+      if (completed) {
+        status = "Completed";
+      } else {
+        status = "Pending";
+        statusColor = "pending";
+        btn = "<button>Cancel</button>";
+      }
+      console.log(statusColor);
+      // Create a row for the payment
+      const payment = `
+      <tr class="${statusColor}" id="${index}">
+        <td>${date}</td>
+        <td >${status}</td>
+        <td>${description}</td>
+        <td>${amount}</td>
+        <td>${btn}</td>
+      </tr>`;
+
+      // Add the row to the accumulator
+      return acc + payment;
+    },
+    ""
+  );
+  calculateIncomeBeforePending();
+  calculateTotalAmount();
+  calculateCurrentMonthIncome();
+  findMostValuablePayment();
+
+  // Update the UI with the calculated values
+  paymentsList.innerHTML = payments;
+}
+
+const calculateIncomeBeforePending = () => {
+  const incomeBeforePending = account.payments.reduce(
+    (acc, { amount, completed }) => (completed ? acc + amount : acc),
+    0
+  );
+  balance.textContent = `£${incomeBeforePending + account.initialBalance}`;
+};
+
+const calculateTotalAmount = () => {
+  const totalAmount = account.payments.reduce(
+    (acc, { amount }) => acc + amount,
+    0
+  );
+  pendingBalance.textContent = `£${totalAmount + account.initialBalance}`;
+};
+
+const calculateCurrentMonthIncome = () => {
+  const currentMonthIncome = account.payments.reduce(
+    (acc, { date, amount }) => {
+      let month = Number(date.slice(6, 7));
+      return month === 5 ? acc + amount : acc + 0;
+    },
+    0
+  );
+  totalIncome.textContent = `£${currentMonthIncome.toFixed(2)}`;
+};
+
+const findMostValuablePayment = () => {
+  const mostValuablePayment = account.payments.reduce(
+    (acc, { date, amount }) => {
+      let month = Number(date.slice(6, 7));
+      return month === 5 && amount > acc ? amount : acc;
+    },
+    0
+  );
+  highestPayment.textContent = `£${mostValuablePayment}`;
+};
+
+// Function to remove a payment from the array and update the UI
+const removePayment = (paymentId) => {
+  account.payments.forEach((_, index) => {
+    if (index == paymentId) {
+      account.payments.splice(index, 1);
+    }
+  });
+  render(account);
+};
+
+// List of event listeners
+loadBtn.addEventListener("click", async function () {
+  try {
+    const response = await fetch(account.paymentsUrl);
+    const payments = await response.json();
+    account.payments = payments;
+    render(account);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+paymentsList.addEventListener("click", (event) => {
+  if (event.target.tagName === "BUTTON") {
+    event.target.parentNode.parentNode.remove();
+    removePayment(event.target.parentNode.parentNode.id);
+  }
 });
 
 /**
@@ -69,10 +140,6 @@ document.querySelector("#loadButton").addEventListener("click", function () {
  *
  * @param {Object} account The account details
  */
-function render(account) {
-  // Display the account number
-  document.querySelector("#accountNumber").innerText = account.number;
-}
 
 /**
  * Write any additional functions that you need to complete
