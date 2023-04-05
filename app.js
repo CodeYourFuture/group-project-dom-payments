@@ -35,7 +35,7 @@ function render(account) {
         statusColor = "pending";
         btn = "<button>Cancel</button>";
       }
-      console.log(statusColor);
+
       // Create a row for the payment
       const payment = `
       <tr class="${statusColor}" id="${index}">
@@ -102,7 +102,7 @@ const findMostValuablePayment = () => {
 const removePayment = (paymentId) => {
   account.payments.forEach((_, index) => {
     if (index == paymentId) {
-      account.payments.splice(index, 1);
+      delete account.payments[index];
     }
   });
   render(account);
